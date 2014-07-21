@@ -27,8 +27,8 @@ takeWhile' f (x:xs) = if f x
   then x:takeWhile' f xs
   else []
 
-span f xs = (takeWhile f xs, dropWhile f xs)
-break f xs =
+span' f xs = (takeWhile f xs, dropWhile f xs)
+break' f xs =
   let g = not . f
   in (takeWhile g xs, dropWhile g xs)
 
@@ -47,8 +47,36 @@ isPrefix :: (Eq a) => [a] -> [a] -> Bool
 isPrefix xs ys = xs == take (length xs) ys
 
 isInfix :: (Eq a) => [a] -> [a] -> Bool
+isInfix [] _ = True
 isInfix _ [] = False
-isInfix xs ys
-  | xs == zs = True
-  | otherwise = isInfix xs zs
-  where zs = take (length xs) ys
+isInfix xs ya@(y:ys)
+  | isPrefix xs ya = True
+  | otherwise = isInfix xs ys
+
+isSuffix :: (Eq a) => [a] -> [a] -> Bool
+isSuffix xs ys = reverse xs `isPrefix` reverse ys
+
+zip' :: [a] -> [b] -> [(a,b)]
+zip' (x:xs) (y:ys) = (x,y) : zip' xs ys
+zip' _ _ = []
+
+zipWith' :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWith' f (x:xs) (y:ys) = f x y : zipWith' f xs ys
+zipWith' _ _ _ = []
+
+lines' :: String -> [String]
+lines' "" = []
+lines' str
+  | suf == "\n" || suf == [] = [pre]
+  | otherwise = pre: lines' (tail suf)
+  where
+    (pre,suf) = break (=='\n') str
+
+safeListFunc :: ([b] -> a) -> [b] -> Maybe a
+safeListFunc func [] = Nothing
+safeListFunc func xs = Just (func xs)
+
+safeHead = safeListFunc head
+safeTail = safeListFunc tail
+safeLast = safeListFunc last
+safeInit = safeListFunc init

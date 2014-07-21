@@ -80,3 +80,11 @@ safeHead = safeListFunc head
 safeTail = safeListFunc tail
 safeLast = safeListFunc last
 safeInit = safeListFunc init
+
+splitWith :: (a -> Bool) -> [a] -> [[a]]
+splitWith _ [] = []
+splitWith f (x:xs) | not $ f x = splitWith f xs
+splitWith f xs = (takeWhile f xs):(splitWith f next)
+  where
+    rest = dropWhile f xs
+    next = dropWhile (not . f) rest
